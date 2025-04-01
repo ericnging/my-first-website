@@ -1,21 +1,83 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<!DOCTYPE html>
+<html>
+<head>
+  <title>留言板</title>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    form { margin-bottom: 20px; }
+    input, textarea { width: 100%; margin-top: 5px; margin-bottom: 10px; padding: 8px; }
+    .message { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+    .meta { font-size: 0.8em; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>留言板</h1>
 
-  async function loadMessages() {
-    let { data, error } = await supabase
-      .from('testtable01')  // 換成你剛剛的表名
-      .select('*')
-      .order('created_at', { ascending: false });
+  <form id="message-form">
+    <label>你的名字：
+      <input type="text" id="name" required>
+    </label>
+    <label>你的留言：
+      <textarea id="message" rows="4" required></textarea>
+    </label>
+    <button type="submit">送出留言</button>
+  </form>
 
-    if (error) {
-      console.error('Error:', error);
-    } else {
-      console.log('Messages:', data);
+  <div id="messages"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    // 替換為你的 Supabase 設定
+    const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const form = document.getElementById('message-form');
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+    const messagesDiv = document.getElementById('messages');
+
+    // 發送留言
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const message = messageInput.value.trim();
+      if (!name || !message) return;
+
+      const { error } = await supabase.from('messages').insert([{ name, message }]);
+      if (error) {
+        alert('發送失敗！');
+        console.error(error);
+      } else {
+        nameInput.value = '';
+        messageInput.value = '';
+        loadMessages(); // 重新載入留言
+      }
+    });
+
+    // 載入留言
+    async function loadMessages() {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        messagesDiv.innerHTML = '<p>載入留言失敗</p>';
+        console.error(error);
+        return;
+      }
+
+      messagesDiv.innerHTML = data.map(msg => `
+        <div class="message">
+          <div>${msg.message}</div>
+          <div class="meta">by ${msg.name} @ ${new Date(msg.created_at).toLocaleString()}</div>
+        </div>
+      `).join('');
     }
-  }
 
-  loadMessages();
-</script>
+    loadMessages();
+  </script>
+</body>
+</html>
