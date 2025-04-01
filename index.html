@@ -26,60 +26,74 @@
 
   <div id="messages"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    // 替換這裡 👇
-    const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const tableName = 'testtable01'; // ✅ 你的資料表名稱
+  const tableName = 'testtable01';
 
-    const form = document.getElementById('message-form');
-    const nameInput = document.getElementById('name');
-    const messageInput = document.getElementById('message');
-    const messagesDiv = document.getElementById('messages');
+  const form = document.getElementById('message-form');
+  const nameInput = document.getElementById('name');
+  const messageInput = document.getElementById('message');
+  const messagesDiv = document.getElementById('messages');
 
-    // 發送留言
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = nameInput.value.trim();
-      const message = messageInput.value.trim();
-      if (!name || !message) return;
+  // ✅ 新增提示文字元素
+  const alertDiv = document.createElement('div');
+  alertDiv.style.marginBottom = '20px';
+  document.body.insertBefore(alertDiv, form);
 
-      const { error } = await supabase.from(tableName).insert([{ name, message }]);
-      if (error) {
-        alert('發送失敗！');
-        console.error(error);
-      } else {
-        nameInput.value = '';
-        messageInput.value = '';
-        loadMessages(); // 重新載入留言
-      }
-    });
+  function showAlert(message, success = true) {
+    alertDiv.textContent = message;
+    alertDiv.style.color = success ? 'green' : 'red';
+    setTimeout(() => {
+      alertDiv.textContent = '';
+    }, 3000);
+  }
 
-    // 載入留言
-    async function loadMessages() {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .order('created_at', { ascending: false });
+  // 發送留言
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const message = messageInput.value.trim();
+    if (!name || !message) return;
 
-      if (error) {
-        messagesDiv.innerHTML = '<p>載入留言失敗</p>';
-        console.error(error);
-        return;
-      }
+    const { error } = await supabase.from(tableName).insert([{ name, message }]);
+    if (error) {
+      console.error("寫入失敗：", error);
+      showAlert('留言失敗，請稍後再試。', false); // ❌ 提示失敗
+    } else {
+      nameInput.value = '';
+      messageInput.value = '';
+      showAlert('留言成功！✅'); // ✅ 提示成功
+      loadMessages(); // 重新載入留言
+    }
+  });
 
-      messagesDiv.innerHTML = data.map(msg => `
-        <div class="message">
-          <div>${msg.message}</div>
-          <div class="meta">by ${msg.name} @ ${new Date(msg.created_at).toLocaleString()}</div>
-        </div>
-      `).join('');
+  // 載入留言
+  async function loadMessages() {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      messagesDiv.innerHTML = '<p>載入留言失敗</p>';
+      console.error(error);
+      return;
     }
 
-    loadMessages();
-  </script>
+    messagesDiv.innerHTML = data.map(msg => `
+      <div class="message">
+        <div>${msg.message}</div>
+        <div class="meta">by ${msg.name} @ ${new Date(msg.created_at).toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
+
+  loadMessages();
+</script>
+
 </body>
 </html>
