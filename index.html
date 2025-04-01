@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>My Website</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <p>This site is hosted on GitHub Pages.</p>
-  </body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabaseUrl = 'https://你的-supabase-url.supabase.co';
+  const supabaseKey = '你的-anon-key';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function loadMessages() {
+    let { data, error } = await supabase
+      .from('your_table_name')  // 換成你剛剛的表名
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error:', error);
+    } else {
+      console.log('Messages:', data);
+    }
+  }
+
+  loadMessages();
+</script>
