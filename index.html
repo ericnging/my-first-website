@@ -1,12 +1,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
-  const supabaseUrl = 'https://你的-supabase-url.supabase.co';
-  const supabaseKey = '你的-anon-key';
+  const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   async function loadMessages() {
     let { data, error } = await supabase
-      .from('your_table_name')  // 換成你剛剛的表名
+      .from('testtable01')  // 換成你剛剛的表名
       .select('*')
       .order('created_at', { ascending: false });
 
