@@ -28,10 +28,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // 替換為你的 Supabase 設定
+    // 替換這裡 👇
     const supabaseUrl = 'https://amslrhldaypsxzunacjv.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2xyaGxkYXlwc3h6dW5hY2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTE5MjMsImV4cCI6MjA1OTA2NzkyM30.0h4gKaf2VfTIpOa2-HPucW4uYz5GmCzg7jd0WOV80TI';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const tableName = 'testtable01'; // ✅ 你的資料表名稱
 
     const form = document.getElementById('message-form');
     const nameInput = document.getElementById('name');
@@ -45,7 +47,7 @@
       const message = messageInput.value.trim();
       if (!name || !message) return;
 
-      const { error } = await supabase.from('messages').insert([{ name, message }]);
+      const { error } = await supabase.from(tableName).insert([{ name, message }]);
       if (error) {
         alert('發送失敗！');
         console.error(error);
@@ -59,7 +61,7 @@
     // 載入留言
     async function loadMessages() {
       const { data, error } = await supabase
-        .from('messages')
+        .from(tableName)
         .select('*')
         .order('created_at', { ascending: false });
 
